@@ -1,0 +1,27 @@
+algorithm: 'TrafficGamer'
+seed: 666
+actor_learning_rate : 0.00005
+critic_learning_rate: 0.0001
+density_learning_rate: 0.0003
+gae: True
+gamma: 0.99
+lamda: 0.95
+eps: 0.2
+hidden_dim: 128
+entropy_coef: 0.005
+epochs: 10
+batch_size: 32
+episodes: 1
+offset: 5
+kl_coef: 0.005
+target_kl: 0.01
+
+beta_coef: 0.1
+constrainted_critic_learning_rate: 0.0001
+
+N_quantile: 64
+cost_quantile: 48
+tau_update: 0.01
+LR_QN: 0.0003
+type: 'CVaR'
+method: 'SplineDQN'
