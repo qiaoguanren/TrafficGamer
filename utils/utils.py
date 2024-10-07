@@ -349,7 +349,8 @@ def add_new_agent(data, a, v0_x, v0_y, heading, x0, y0):
 
 def reward_function(data, new_data, model, agent_index, scenario_static_map, dataset_type='av2'):
 
-    reward1 = 0.0; reward2 = 0.0; reward3 = 0.0
+    reward1 = 0.0; reward2 = 0.0; reward3 = 0.0; reward4 = 0.0
+    
     flag = 0
     if dataset_type=='av2':
         boundary_coords = []
@@ -360,7 +361,19 @@ def reward_function(data, new_data, model, agent_index, scenario_static_map, dat
                     ].cpu().numpy(),3):
             for j in scenario_static_map.get_lane_segment_polygon(i.id):
                     boundary_coords.append([j[0], j[1]])
+            max_speed_limit_ms = 15
+    
+            current_velocity = new_data["agent"]["velocity"][
+                agent_index,
+                model.num_historical_steps - 1,
+                : model.output_dim
+            ].cpu().numpy()
+            current_speed = np.linalg.norm(current_velocity)
+
+            if current_speed > max_speed_limit_ms:
+                reward4 -= (current_speed - max_speed_limit_ms) * 0.5 
             polygon = Polygon(boundary_coords)
+            
             if polygon.contains(Point(new_data["agent"]["position"][
                         agent_index,
                         model.num_historical_steps - 1 : model.num_historical_steps,
@@ -386,7 +399,19 @@ def reward_function(data, new_data, model, agent_index, scenario_static_map, dat
                     center_dis=distance_to_center
                     line_id=key
                     center_line=centerline
+                    
         if line_id!=-1:
+            max_speed_limit_kmh = scenario_static_map[line_id]['speed_limit_kmh']
+            max_speed_limit_ms = max_speed_limit_kmh / 3.6
+            
+            current_velocity = new_data["agent"]["velocity"][
+                agent_index,
+                model.num_historical_steps - 1,
+                : model.output_dim
+            ].cpu().numpy()
+            current_speed = np.linalg.norm(current_velocity)
+            if current_speed > max_speed_limit_ms:
+                reward4 -= (current_speed - max_speed_limit_ms) 
             projected_dist = center_line.project(point)
             closest_point = center_line.interpolate(projected_dist)
             left_line = None
@@ -443,6 +468,7 @@ def reward_function(data, new_data, model, agent_index, scenario_static_map, dat
                     distance_to_right = dis_right
                     right_line = right_boundary
             if left_line==None and right_line==None:
+                print("without boundaries!")
                 width = 0
             elif left_line!=None and right_line==None:
                 left_distance = left_line.distance(closest_point)
@@ -457,25 +483,6 @@ def reward_function(data, new_data, model, agent_index, scenario_static_map, dat
                 width = left_line.distance(closest_point)+right_line.distance(closest_point)
             if distance_to_left>0 and distance_to_right>0 and distance_to_left<width and distance_to_right<width:
                 flag = 1
-    # elif dataset_type=='waymo':
-    #     center_dis = float('inf')
-    #     point = new_data["agent"]["position"][
-    #                     agent_index,
-    #                     model.num_historical_steps - 1 : model.num_historical_steps,
-    #                     : model.output_dim,
-    #                 ].cpu().numpy()
-    #     point = Point(point[0,0], point[0,1])
-                
-    #     for key, value in scenario_static_map.items():
-    #         if value['type']=='ROAD_EDGE_BOUNDARY' or value['type']=='ROAD_LINE_SOLID_SINGLE_WHITE' or value['type'] == 'ROAD_LINE_SOLID_SINGLE_YELLOW' or value['type']=='ROAD_LINE_SOLID_DOUBLE_WHITE' or value['type'] == 'ROAD_LINE_SOLID_DOUBLE_YELLOW':
-    #             centerline = LineString(value['polyline'][:,:2])
-    #             distance_to_center = centerline.distance(point)
-    #             if distance_to_center<center_dis:
-    #                 center_dis=distance_to_center
-        
-    #     if center_dis > 0.5:      
-    #             flag = 1
-
     if not flag:
         reward3 = -10
 
@@ -509,20 +516,52 @@ def reward_function(data, new_data, model, agent_index, scenario_static_map, dat
             if distance < 2:
                 reward2 -= 10
                 break
+    # for i in range(new_data['agent']['num_nodes']):
+    #     if i != agent_index:
 
-    # gt = data['agent']['position'][agent_index, model.num_historical_steps+model.num_future_steps-1:model.num_historical_steps+model.num_future_steps, :model.output_dim]
-    # start_point = data['agent']['position'][agent_index, model.num_historical_steps-1:model.num_historical_steps, :model.output_dim]
-    # current_position = new_data['agent']['position'][agent_index, model.num_historical_steps-1:model.num_historical_steps, :model.output_dim]
+    #         heading = new_data["agent"]["heading"][agent_index,model.num_historical_steps - 1 : model.num_historical_steps].cpu().numpy()
+    #         vehicle_length = new_data["agent"]["length"][agent_index,model.num_historical_steps - 1 : model.num_historical_steps].cpu().numpy()
+    #         vehicle_width = new_data["agent"]["width"][agent_index,model.num_historical_steps - 1 : model.num_historical_steps].cpu().numpy()
 
-    # l2_norm_current_distance = torch.norm(current_position - gt, p=1, dim=-1)
-    # total_distance = torch.norm(gt - start_point, p=1, dim=-1)
-    # travel_distance = torch.norm(current_position - start_point, p=1, dim=-1)
-    # if travel_distance<total_distance:
-    #     reward = math.log(travel_distance/total_distance)
-    # else:
-    #     reward = l2_norm_current_distance
+    #         other_heading = new_data["agent"]["heading"][i,model.num_historical_steps - 1 : model.num_historical_steps].cpu().numpy()
+    #         other_length = new_data["agent"]["length"][i,model.num_historical_steps - 1 : model.num_historical_steps].cpu().numpy()
+    #         other_width = new_data["agent"]["width"][i,model.num_historical_steps - 1 : model.num_historical_steps].cpu().numpy()
+            
+    #         current_position = new_data["agent"]["position"][
+    #             agent_index,
+    #             model.num_historical_steps - 1 : model.num_historical_steps,
+    #             : model.output_dim,
+    #         ].cpu().numpy().flatten()
+            
+    #         dx = vehicle_length / 2 * np.cos(heading)
+    #         dy = vehicle_length / 2 * np.sin(heading)
+    #         corner1 = (current_position[0] - dx + vehicle_width / 2 * np.sin(heading), current_position[1] - dy - vehicle_width / 2 * np.cos(heading))
+    #         corner2 = (current_position[0] - dx - vehicle_width / 2 * np.sin(heading), current_position[1] - dy + vehicle_width / 2 * np.cos(heading))
+    #         corner3 = (current_position[0] + dx - vehicle_width / 2 * np.sin(heading), current_position[1] + dy + vehicle_width / 2 * np.cos(heading))
+    #         corner4 = (current_position[0] + dx + vehicle_width / 2 * np.sin(heading), current_position[1] + dy - vehicle_width / 2 * np.cos(heading))
+    #         vehicle_polygon = Polygon([corner1, corner2, corner3, corner4])
 
-    return reward1 + reward2 + reward3
+    #         # Calculate the four corners of the other vehicle's bounding box
+    #         other_position = new_data["agent"]["position"][
+    #             i,
+    #             model.num_historical_steps - 1 : model.num_historical_steps,
+    #             : model.output_dim,
+    #         ].cpu().numpy().flatten()
+            
+    #         other_dx = other_length / 2 * np.cos(other_heading)
+    #         other_dy = other_length / 2 * np.sin(other_heading)
+    #         other_corner1 = (other_position[0] - other_dx + other_width / 2 * np.sin(other_heading), other_position[1] - other_dy - other_width / 2 * np.cos(other_heading))
+    #         other_corner2 = (other_position[0] - other_dx - other_width / 2 * np.sin(other_heading), other_position[1] - other_dy + other_width / 2 * np.cos(other_heading))
+    #         other_corner3 = (other_position[0] + other_dx - other_width / 2 * np.sin(other_heading), other_position[1] + other_dy + other_width / 2 * np.cos(other_heading))
+    #         other_corner4 = (other_position[0] + other_dx + other_width / 2 * np.sin(other_heading), other_position[1] + other_dy - other_width / 2 * np.cos(other_heading))
+    #         other_vehicle_polygon = Polygon([other_corner1, other_corner2, other_corner3, other_corner4])
+
+    #         # Check for intersection (collision) between the two vehicle polygons
+    #         if vehicle_polygon.intersects(other_vehicle_polygon):
+    #             reward2 -= 10  
+    #             break
+
+    return reward1 + reward2 + reward3 + reward4
 
 
 def cost_function(new_data, model, agent_index, distance_limit, choose_agent):
