@@ -57,7 +57,7 @@ except ImportError:
     ChallengeSubmission = object
 
 
-class AntoQCNet(QCNet):
+class AutoQCNet(QCNet):
 
     def forward(self, data: HeteroData):
         scene_enc = self.encoder(data)

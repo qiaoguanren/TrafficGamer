@@ -504,7 +504,7 @@ class TrafficGamer(Constrainted_CCE_MAPPO):
 
             # pi and value loss
             pi_loss = torch.mean(-torch.min(surr1, surr2))
-            value_loss = torch.mean(F.mse_loss(value, returns.detach()))
+            value_loss = torch.mean(F.mse_loss(value, td_target.detach()))
             # cost_value_loss = torch.mean(F.mse_loss(cost_td_delta, cost_values.detach()))
             entropy = new_policy.entropy()
 

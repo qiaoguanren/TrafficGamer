@@ -136,7 +136,7 @@ class MAPPO(PPO):
             # get ratio
             old_policy = self.get_action_dist(observations)
             old_log_probs = old_policy.log_prob(actions)
-            returns = td_value + advantage
+            # returns = td_value + advantage
 
         temp_pi_old = torch.ones_like(old_log_probs)
         signal = 0.0
@@ -161,7 +161,7 @@ class MAPPO(PPO):
 
             # pi and value loss
             pi_loss = torch.mean(-torch.min(surr1, surr2))
-            value_loss = torch.mean(F.mse_loss(value, returns.detach()))
+            value_loss = torch.mean(F.mse_loss(value, td_target.detach()))
             entropy = new_policy.entropy()
 
             # log["value_loss"] = value_loss.mean().item()

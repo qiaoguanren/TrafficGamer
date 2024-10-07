@@ -197,8 +197,8 @@ class Constrainted_CCE_MAPPO(MAPPO):
             )
             cost_advantages = (cost_advantages - cost_advantages.mean())
 
-            returns = reward_advantages + td_value
-            cost_returns = cost_advantages + td_cost_value
+            # returns = reward_advantages + td_value
+            # cost_returns = cost_advantages + td_cost_value
         
         temp_pi_old = torch.ones_like(old_log_probs)    
         for epoch in tqdm(range(self.epochs)):
@@ -224,8 +224,8 @@ class Constrainted_CCE_MAPPO(MAPPO):
 
             # pi and value loss
             pi_loss = torch.mean(-torch.min(surr1, surr2))
-            value_loss = torch.mean(F.mse_loss(value, returns.detach()))
-            cost_value_loss = torch.mean(F.mse_loss(cost_value, cost_returns.detach()))
+            value_loss = torch.mean(F.mse_loss(value, td_target.detach()))
+            cost_value_loss = torch.mean(F.mse_loss(cost_value, td_cost_target.detach()))
             entropy = new_policy.entropy()
 
             log["entropy"] = entropy.mean().item()
