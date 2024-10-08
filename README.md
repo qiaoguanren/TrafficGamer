@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ## Pre-Training & Fine-tuning
 
 ### Pre-Training
-
+For pre-training, we require all the training data from the entire dataset.
 You can train the auto-regressive pre-train model on 8 NVIDIA GeForce RTX 4090:
 ```
 python train_qcnet.py --root /path/to/dataset_root/ --train_batch_size 4 --val_batch_size 4 --test_batch_size 4 --devices 8 --dataset argoverse_v2 --num_historical_steps 50 --num_future_steps 60 --num_recurrent_steps 3 --pl2pl_radius 150 --time_span 10 --pl2a_radius 50 --a2a_radius 50 --num_t2m_steps 30 --pl2m_radius 150 --a2m_radius 150
@@ -46,28 +46,47 @@ python val.py --model QCNet --root /path/to/dataset_root/ --ckpt_path /path/to/y
 ```
 
 ### Fine-tuning
-
+The data we used for fine-tuning is selected from the validation set of the two datasets, consisting of six distinct scenes, each with unique characteristics. The data is all collected from open-source real-world data obtained through sensors. The data has been preprocessed by our code and saved in a binary .pkl file using pickle. It includes various traffic features such as vehicle positions, speeds, times, and cities, as well as map information like lane markings and intersections.
 To generate more safety-critical scenarios, you should follow these steps:
-**Step 1**: Select an interesting scene from the dataset and choose the processed data format.
+
+**Step 1**: Select an interesting scene from the data and record the id of scenario.
 
 **Step 2**: Select the controlled vehicles and determine their respective destinations.
 
-**Step 3**: To estimate CCE, you can run the fine-tuning script:
+**Step 3**: Load the checkpoint of the pre-trained model and Load the data with DataLoader.
+
+**Step 4**: To estimate CCE, you can choose different algorithms and run the fine-tuning script:
 ```
 python run_parallel.py --filename "train_trafficgamer.py --magnet --track" --seed 123 --scenario 1 --workspace CCE-MAPPO
 ```
 
-**Step 4**: To generate all kinds of scenarios, you can run the fine-tuning script:
+**Step 5**: To generate all kinds of scenarios, you can run the fine-tuning script:
 ```
 python run_parallel.py --filename "train_trafficgamer.py --magnet --track" --seed 123 --scenario 2 --workspace TrafficGamer --distance_limit 3.0 --cost_quantile 32
 ```
+To get better performance, you can try to adjust the `--eta-coef1`, `--penalty_initial_value`, `--distance_limit` and `--cost_quantile` parameters.
 
-**Step 5**: You can check your 2D visualization in your wandb project or you can save .mp4 video in a folder and run:
+**Step 6**: We will record the reward. Then we will fix the other agents' RL parameters and use the script:
+```
+python optimal_value.py
+```
+to get the optimal value of the chosen agent by utilizing PPO algotihm. This is the first calculation of estimating CCE.
+
+**Step 7**: To use the second method for calculating CCE, you need to set the parameter confined_action=True and retrain the agent:
+```
+python run_parallel.py --filename "train_trafficgamer.py --magnet --track --confined_action" --seed 123 --scenario 1 --workspace CCE-MAPPO
+```
+At the same time, We get expert reward by picking out the best strategy from the limited strategy set.
+```
+python expert_policy.py
+```
+
+**Step 8**: You can check your 2D visualization in your wandb project or you can save .mp4 video in a folder and run:
 ```
 python serve.py
 ```
 
-**Step 6**: You can use the 3D visualization method following the readme.md file in visualization folder.
+**Step 9**: You can use the 3D visualization method following the readme.md file in visualization folder.
 
 ## License
 
@@ -75,4 +94,4 @@ This repository is licensed under [BSD 3-Clause License](LICENSE).
 
 ## Acknowledgement
 
-This work is based on the code repo: [QCNet](https://github.com/ZikangZhou/QCNet).  
+This work is based on the code repo: [QCNet](https://github.com/ZikangZhou/QCNet). We are grateful that this project has provided a solid foundation for our ideas. 
