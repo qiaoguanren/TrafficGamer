@@ -112,7 +112,6 @@ venv.bak/
 lightning_logs/
 performance/
 .DS_Store
-datasets/
 checkpoints/
 figures/
 videos/
@@ -122,5 +121,4 @@ ground_truth.mp4
 nohup.out
 test.webm
 .history/
-datasets/argoverse_v2_dataset.py
 .neptune/

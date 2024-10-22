@@ -10,8 +10,8 @@ asttokens==2.4.1
 astunparse==1.6.3
 async-timeout==4.0.2
 attrs==23.1.0
-av==10.0.0
-av2==0.3.0
+# av==10.0.0
+# av2==0.3.0
 backcall==0.2.0
 backports.functools-lru-cache==1.6.5
 beautifulsoup4==4.12.2
