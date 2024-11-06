@@ -62,7 +62,7 @@ from tqdm import tqdm
 from pathlib import Path
 import os, shutil
 from algorithm.TrafficGamer import TrafficGamer
-from algorithm.constrainted_cce_mappo import Constrainted_CCE_MAPPO
+from algorithm.cce_mappo import CCE_MAPPO
 
 try:
     from av2.datasets.motion_forecasting.eval.submission import ChallengeSubmission
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--root",
         type=str,
-        default="~/Multi-agent-competitive-environment/datasets",
+        default="./Multi-agent-competitive-environment/datasets",
     )
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--num_workers", type=int, default=1)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument("--devices", type=int, default=1)
     parser.add_argument("--scenario", type=int, default=1)
     parser.add_argument(
-        "--ckpt_path", default="~/Multi-agent-competitive-environment/checkpoints/epoch=19-step=499780.ckpt", type=str
+        "--ckpt_path", default="./Multi-agent-competitive-environment/checkpoints/epoch=19-step=499780.ckpt", type=str
     )
     parser.add_argument("--RL_config", default="TrafficGamer", type=str)
     parser.add_argument(
@@ -235,9 +235,9 @@ if __name__ == "__main__":
     config['agent_number'] = agent_num
     config['penalty_initial_value'] = args.penalty_initial_value
     
-    agents = [TrafficGamer(
+    agents = [CCE_MAPPO(
             state_dim=model.num_modes * config["hidden_dim"],
-            action_dim=2,
+            agent_number=agent_num,
             config=config,
             device=model.device,
         ) for _ in range(agent_num)]

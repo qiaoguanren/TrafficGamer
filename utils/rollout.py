@@ -45,7 +45,6 @@ import wandb
 from tqdm import tqdm
 from pathlib import Path
 from algorithm.mappo import MAPPO
-from algorithm.masac import MASAC
 from algorithm.ppo import PPO
 from utils.utils import get_auto_pred, get_transform_mat, generate_tmp_gif_path, get_v_transform_mat
 from visualization.vis import plot_traj_with_data
