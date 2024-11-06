@@ -1,7 +1,7 @@
 # TrafficGamer
 
 This repository is the official implementation of the TrafficGamer.
- [paper](https://arxiv.org/abs/2408.15538) [demo](https://qiaoguanren.github.io/trafficgamer-demo/)
+ [[paper]](https://arxiv.org/abs/2408.15538) [[demo]](https://qiaoguanren.github.io/trafficgamer-demo/)
 
 ## Getting Started
 
