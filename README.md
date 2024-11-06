@@ -71,23 +71,24 @@ To get better performance, you can try to adjust the `--eta-coef1`, `--penalty_i
 ```
 python optimal_value.py
 ```
-to get the optimal value of the chosen agent by utilizing PPO algotihm. This is the first calculation of estimating CCE.
+to get the optimal value of the chosen agent by utilizing the PPO algorithm. We take the difference between the optimal value and real rewards. This is the first calculation of estimating CCE.
 
 **Step 7**: To use the second method for calculating CCE, you need to set the parameter confined_action=True and retrain the agent:
 ```
 python run_parallel.py --filename "train_trafficgamer.py --magnet --track --confined_action" --seed 123 --scenario 1 --workspace CCE-MAPPO
 ```
-At the same time, We get expert reward by picking out the best strategy from the limited strategy set.
+At the same time, We get expert rewards by picking out the best strategy from the limited strategy set.
 ```
 python expert_policy.py
 ```
+We take the difference between expert rewards and real rewards. This is the second calculation of estimating CCE.
 
 **Step 8**: You can check your 2D visualization in your wandb project or you can save .mp4 video in a folder and run:
 ```
 python serve.py
 ```
 
-**Step 9**: You can use the 3D visualization method following the readme.md file in visualization folder.
+**Step 9**: You can use the 3D visualization method following the readme.md file in the visualization folder.
 
 ## License
 
