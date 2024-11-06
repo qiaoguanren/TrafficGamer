@@ -1,6 +1,7 @@
 # TrafficGamer
 
 This repository is the official implementation of the TrafficGamer.
+ [paper](https://arxiv.org/abs/2408.15538) [demo](https://qiaoguanren.github.io/trafficgamer-demo/)
 
 ## Getting Started
 
@@ -91,6 +92,18 @@ python serve.py
 ## License
 
 This repository is licensed under [BSD 3-Clause License](LICENSE).
+
+## Citation
+
+If you use the code of this repo or find it is helpful for your research, please cite:
+```
+@article{qiao2024trafficgamer,
+  title={TrafficGamer: Reliable and Flexible Traffic Simulation for Safety-Critical Scenarios with Game-Theoretic Oracles},
+  author={Qiao, Guanren and Quan, Guorui and Yu, Jiawei and Jia, Shujun and Liu, Guiliang},
+  journal={arXiv preprint arXiv:2408.15538},
+  year={2024}
+}
+```
 
 ## Acknowledgement
 
