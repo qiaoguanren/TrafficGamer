@@ -442,7 +442,7 @@ def expert_process_batch(
                 
             for i in range(agent_num):
                 if i==current_agent_index:
-                    best_mode[choose_agent[i]] = 5 # sometimes 0 is better
+                    best_mode[choose_agent[i]] = 5 # sometimes 0 is better if you find expert reward is lower than real rewards.
                 else:
                     l2_norm = (torch.norm(auto_pred['loc_refine_pos'][choose_agent[i],:,:offset, :2] -
                                         sample_action_list[i][1:6], p=2, dim=-1) * reg_mask_list[i][timestep:timestep+offset].unsqueeze(0)).sum(dim=-1)
