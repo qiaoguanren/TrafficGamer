@@ -40,7 +40,7 @@ from algorithm.mappo import MAPPO
 from torch_geometric.loader import DataLoader
 from argparse import ArgumentParser
 from datasets import ArgoverseV2Dataset
-from predictors.autoval import AntoQCNet
+from predictors.autoval import AutoQCNet
 from transforms import TargetBuilder
 from utils.rollout import PPO_process_batch, expert_process_batch
 from utils.utils import seed_everything
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--root",
         type=str,
-        default="~/Multi-agent-competitive-environment/datasets",
+        default="./Multi-agent-competitive-environment/datasets",
     )
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--num_workers", type=int, default=1)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     seed_everything(args.seed)
 
     model = {
-        "QCNet": AntoQCNet,
+        "QCNet": AutoQCNet,
     }[
         args.model
     ].load_from_checkpoint(checkpoint_path=args.ckpt_path)

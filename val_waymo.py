@@ -41,7 +41,7 @@ from algorithm.cce_mappo import CCE_MAPPO
 from torch_geometric.loader import DataLoader
 from argparse import ArgumentParser
 from datasets.waymo_dataset import WaymoDataset
-from predictors.autoval import AntoQCNet
+from predictors.autoval import AutoQCNet
 from transforms import TargetBuilder
 # from utils.rollout import PPO_process_batch, expert_process_batch
 from utils.rollout import PPO_process_batch, PPO_process_batch_confined_actions
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     parser.add_argument("--scenario", type=int, default=1)
 
     parser.add_argument(
-        "--ckpt_path", default="~/Multi-agent-competitive-environment/epoch=20-step=79905.ckpt", type=str
+        "--ckpt_path", default="./Multi-agent-competitive-environment/epoch=20-step=79905.ckpt", type=str
     )
     parser.add_argument("--RL_config", default="TrafficGamer_eval", type=str)
     parser.add_argument(
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     seed_everything(args.seed)
 
     model = {
-        "QCNet": AntoQCNet,
+        "QCNet": AutoQCNet,
     }[
         args.model
     ].load_from_checkpoint(checkpoint_path=args.ckpt_path)
